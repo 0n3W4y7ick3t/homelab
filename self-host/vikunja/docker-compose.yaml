@@ -1,0 +1,24 @@
+services:
+  vikunja:
+    image: vikunja/vikunja
+    environment:
+      VIKUNJA_DATABASE_HOST: postgres
+      VIKUNJA_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-strongpostgres}
+      VIKUNJA_DATABASE_TYPE: postgres
+      VIKUNJA_DATABASE_USER: postgres
+      VIKUNJA_DATABASE_DATABASE: vikunja
+      VIKUNJA_SERVICE_JWTSECRET: ${VIKUNJA_JWT_SECRET:-change-me-to-something-secure}
+    volumes:
+      - ./config.yml:/app/vikunja/config.yml:ro
+      - ./files:/app/vikunja/files
+    ports:
+      - "${VIKUNJA_PORT:-3456}:3456"
+    networks:
+      - shared-db-network
+    restart: unless-stopped
+    user: "1000:1000"
+
+networks:
+  shared-db-network:
+    external: true
+    name: shared-db-network

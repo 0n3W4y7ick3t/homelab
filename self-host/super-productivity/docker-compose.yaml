@@ -1,0 +1,13 @@
+services:
+  sp:
+    image: johannesjo/super-productivity:latest
+    ports:
+      - 4000:80
+    environment:
+      - WEBDAV_BACKEND=http://webdav
+  webdav:
+    image: hacdias/webdav:latest
+    volumes:
+      - ~/.local/share/webdav/config.yml:/config.yml:ro
+      - ~/.local/share/webdav/data:/data
+    restart: unless-stopped

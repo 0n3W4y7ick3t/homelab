@@ -1,0 +1,16 @@
+# Environment files anywhere in the project
+**/.env
+!**/.env.example
+
+# Vikunja data directories and their contents
+**/files/
+**/data/
+**/uploads/
+
+# Configuration files that might contain sensitive data
+**/config.yml
+**/config.yaml
+**/settings.yml
+**/settings.yaml
+!**/config.yml.example
+!**/config.example.yml
