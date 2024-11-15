@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tailscale
+  namespace: ix-tailscale
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tailscale
+  namespace: ix-tailscale
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create", "get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tailscale
+  namespace: ix-tailscale
+subjects:
+- kind: ServiceAccount
+  name: tailscale
+  namespace: ix-tailscale
+roleRef:
+  kind: Role
+  name: tailscale
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tailscale-auth
+  namespace: ix-tailscale
+type: Opaque
+stringData:
+  TS_AUTH_KEY: ""  # Replace with your auth key
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale
+  namespace: ix-tailscale
+spec:
+  selector:
+    matchLabels:
+      app: tailscale
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tailscale
+    spec:
+      serviceAccountName: tailscale
+      hostNetwork: true
+      containers:
+      - name: tailscale
+        image: tailscale/tailscale:v1.76.1
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          sysctl -w net.ipv4.ip_forward=1
+          sysctl -w net.ipv6.conf.all.forwarding=1
+          tailscaled --verbose=1 &
+          sleep 5
+          tailscale up --authkey=$(TS_AUTH_KEY) --advertise-routes=10.1.1.0/24 --reset
+          sleep 2
+          tailscale set --advertise-routes=10.1.1.0/24
+          wait
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["NET_ADMIN", "SYS_MODULE"]
+        env:
+        - name: TS_AUTH_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tailscale-auth
+              key: TS_AUTH_KEY
+        - name: TS_USERSPACE
+          value: "false"
+        - name: TS_DEBUG
+          value: "1"
