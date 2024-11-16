@@ -1,11 +1,12 @@
 22         ssh
+80         xoa
 7777       ttyd
 
 8080->8080 clipcascade
 8085->8080 redis-commander
 8086->8080 adminer
 8087->80   pg-admin
-800 ->80   xoa
 8182->8182 sshwifty
 3000->3456 vikunja
 4000->80   super productivity
+5244->5244 alist
