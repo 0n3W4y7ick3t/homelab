@@ -1,4 +1,8 @@
 #!/bin/bash
+
+mkdir -p $HOME/.local/share/xoa/xo-server
+mkdir -p $HOME/.local/share/xoa/redis
+
 docker run -itd \
   --name xoa \
   -p 800:80 \

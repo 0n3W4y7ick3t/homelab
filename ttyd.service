@@ -1,0 +1,14 @@
+[Unit]
+Description=ttyd service running zsh login on port 7777
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/ttyd -p 7777 --writable zsh -l
+Restart=always
+User=leon
+WorkingDirectory=/home/leon
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
